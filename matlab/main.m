@@ -19,7 +19,6 @@ localPlannerStr   = 'potentialLandscapePlanner';
 makeMov = false;
 
 % add relevant folders to path:
-addpath('~/Downloads/casadi/install/matlab/');
 addpath('./data/');
 addpath(['./globalPlanners/',globalPlannerStr]);
 addpath(['./localPlanners/',localPlannerStr]);
