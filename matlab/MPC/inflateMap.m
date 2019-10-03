@@ -6,11 +6,11 @@ h       = (MPC.map.width)/2;
 sig     = MPC.map.sigma;
 
 % make the gaussian
-% on a grid extending 3 standard deviations in each direction
+% on a grid extending 4 standard deviations in each direction
 % factor f converts stand dev from cartesian to grid coords
 f  = (2*N+1)/(2*h);
-nx = ceil(3*f*sig);
-ny = ceil(3*f*sig);
+nx = ceil(4*f*sig);
+ny = ceil(4*f*sig);
 g  = makeGaussian(f*sig,f*sig,nx,ny);
 
 % initialize map storing G-landscape values

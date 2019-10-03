@@ -58,7 +58,7 @@ for k = 1:N
         if (~isempty(dist))
             % smallest measured distance along beam is 'real' measurement
             % add noise to measurement:
-            meas(k,2) = min(dist) + noiseamp*rand(1);
+            meas(k,2) = min(dist) + noiseamp*(rand(1)-0.5);
         end
     end
 end

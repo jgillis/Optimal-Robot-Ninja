@@ -22,22 +22,29 @@ function [MPC,globalPlanner,localPlanner] = getLocalPlan(MPC,veh,globalPlanner,l
     % local coordinate frame to be used in the optimization problem
     fprintf('\t Getting local start and goal \n');
     [globalPlanner,localPlanner] = getLocalStartAndGoal(MPC,globalPlanner,localPlanner);
-    
-    % get the global plan portion and the associated radii for the local
-    % planner:
-    localPlanner = getGlobalPlanPortion(MPC,globalPlanner,localPlanner);
-    localPlanner = getRadii(localPlanner);
 
     % solve optimization problem
     fprintf('\t Solving problem \n');
+    %localPlanner = optim(MPC,localPlanner,globalPlanner,veh,MPC_iteration);
+    
     try
-        localPlanner = optim_temp(localPlanner,globalPlanner,veh,'ipopt',MPC_iteration);
-    catch ME
+        localPlanner.warmStart = true;
+        localPlanner.solver.type = 'sqp1';
+        localPlanner = optim(MPC,localPlanner,globalPlanner,veh,MPC_iteration);
+    catch ME1
         fprintf(2,'********************************************************* \n');
         fprintf(2,'Infeasible detected - trying with different initial guess \n');
         fprintf(2,'********************************************************* \n');
         localPlanner.warmStart = false;
-        localPlanner = optim_temp(localPlanner,globalPlanner,veh,'ipopt',MPC_iteration);
+        try
+            localPlanner = optim(MPC,localPlanner,globalPlanner,veh,MPC_iteration);
+        catch ME2
+            fprintf(2,'********************************************************* \n');
+            fprintf(2,'Infeasible detected - trying with IPOPT \n');
+            fprintf(2,'********************************************************* \n');
+            localPlanner.solver.type = 'ipopt';
+            localPlanner = optim(MPC,localPlanner,globalPlanner,veh,MPC_iteration);
+        end
     end
     
 end

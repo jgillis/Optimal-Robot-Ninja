@@ -22,8 +22,8 @@ veh.motors.noiseamp    	= 0.03;
 veh.motors.velLimits    = [-0.2,0.2];
 veh.motors.accLimits    = [-0.2,0.2];
 % Sensor:
-veh.sensor.thetamax     = pi;
-veh.sensor.horizon      = 5;
+veh.sensor.thetamax     = 2*pi;
+veh.sensor.horizon      = 4;
 veh.sensor.freq         = 30;
 veh.sensor.omega        = pi/4;
 veh.sensor.noiseamp     = 0.01*veh.sensor.horizon;

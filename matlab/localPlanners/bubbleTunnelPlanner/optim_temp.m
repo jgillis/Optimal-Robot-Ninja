@@ -1,19 +1,19 @@
-function localPlanner = optim_temp(localPlanner,veh,solver_str,MPC_iteration)
+function localPlanner = optim_temp(localPlanner,globalPlanner,veh,solver_str,MPC_iteration)
 % Temporary function acting as both problem builder and solver, while
 % optim_setup is being debugged.
 % As long as this function is used, parametric MPC is not implemented.
 
 opti = casadi.Opti();
 
-n           = localPlanner.params.horizon;
-L           = veh.geometry.wheelBase;
+n               = localPlanner.params.horizon;
+L               = veh.geometry.wheelBase;
 
-withMaxDist = localPlanner.withMaxDistConstraints;
-withV       = localPlanner.withVelocityConstraints;
-withVPos    = localPlanner.withPositiveVelocityConstraints;
-withA       = localPlanner.withAccelerationConstraints;
-withJ       = localPlanner.withJerkConstraints;
-withOm      = localPlanner.withOmegaConstraints;
+withMaxDist     = localPlanner.withMaxDistConstraints;
+withV           = localPlanner.withVelocityConstraints;
+withVPos        = localPlanner.withPositiveVelocityConstraints;
+withA           = localPlanner.withAccelerationConstraints;
+withJ           = localPlanner.withJerkConstraints;
+withOm          = localPlanner.withOmegaConstraints;
 
 u_min           = localPlanner.params.dynLimits.vel(1);
 u_max           = localPlanner.params.dynLimits.vel(2);
@@ -36,7 +36,7 @@ withLinearEnd   = localPlanner.withLinearEndInitial;
 linearEndSwitchDistance = localPlanner.linearEndSwitchDistance;
 
 % ode:
-ode  = @(x,u)[0.5*(u(1)+u(2))*sin(x(3)); 0.5*(u(1)+u(2))*cos(x(3)); (2/L)*(u(2)-u(1))];
+ode  = @(x,u)[-0.5*(u(1)+u(2))*sin(x(3)); 0.5*(u(1)+u(2))*cos(x(3)); (2/L)*(u(2)-u(1))];
 
 % parametric global plan
 xgx=casadi.interpolant('r','bspline',{linspace(0,1,size(xglobal_x,2))},xglobal_x,...
@@ -58,9 +58,11 @@ if warmStart
     else
         linearSelectorBool = (MPC_iteration==1);
     end
+    
 else
     linearSelectorBool = true; 
 end
+
 if strcmp(solver_str,'ipopt')==1
     fprintf('\t \t Using IPOPT solver \n');
     % if first iteration, make initial guesses; else 'warm-start' the
@@ -68,16 +70,38 @@ if strcmp(solver_str,'ipopt')==1
     if linearSelectorBool 
         fprintf('\t \t NOT warm-started \n');
         theta_init = linspace(x_begin(3),x_final(3),n+1);
+%         phi         = atan2(x_final(3),n);
+%         alpha       = 0.5;
+%         n_vec       = linspace(0,n,n+1);
+%         theta_star  = alpha*sin(2*pi*n_vec/n);
+%         theta_init  = n_vec*sin(phi)+theta_star*cos(phi);
         x_init  = [linspace(x_begin(1),x_final(1),n+1);linspace(x_begin(2),x_final(2),n+1); ...
             theta_init];
         u_init  = zeros(2,n);
-        T_init = norm(x_begin(1:2)-x_final(1:2))/u_max;
+        T_init = 1.5*norm(x_begin(1:2)-x_final(1:2))/u_max;
+        
+%         x_init1 = interpolateUntil(xglobal_x,n+1);
+%         x_init2 = interpolateUntil(xglobal_y,n+1);
+%         x_init = [x_init1';x_init2';theta_init];
+
     else
         fprintf('\t \t Warm-started \n');
         x_init = localPlanner.sol.x;
         u_init = localPlanner.sol.u;
         T_init = localPlanner.sol.T;
     end
+    
+    options.ipopt.tol = 1e-5;
+    options.ipopt.print_level = 0;
+    opti.solver('ipopt',options);
+   
+end
+
+% print if goal in view or not
+if localPlanner.goalInView
+    fprintf('\t \t Goal in view \n');
+else
+    fprintf('\t \t Goal not in view \n');
 end
 
 % states integration:
@@ -141,13 +165,14 @@ end
 opti.subject_to(T >= 0);
 
 % obstacle avoidance 'tunnel' constraint
-opti.subject_to(((x(1,:)-xgx(s(:))').^2 + (x(2,:)-xgy(s(:))').^2)<=r(s(:)').^2);
+eps = 0.1;
+opti.subject_to(((x(1,:)-xgx(s(:))').^2 + (x(2,:)-xgy(s(:))').^2)<=(r(s(:)')-L/2).^2);
 
 % constraints on parameter s
 opti.subject_to(s(1) == 0);
 opti.subject_to(s(n+1) == 1);
 opti.subject_to(0<=s(:)<=1);
-opti.subject_to(diff(s(:))<=1/n);
+% opti.subject_to(diff(s(:))<=1.5/n);
 
 % initial guesses
 opti.set_initial(s,linspace(0,1,n+1));
@@ -159,16 +184,19 @@ opti.set_initial(T,T_init);
 opti.minimize(T);
 
 % solver:
-options.ipopt.print_level = 5;
-opti.solver('ipopt',options);
+% options.ipopt.print_level = 5;
+% opti.solver('ipopt',options);
 
 % solve:
 sol = opti.solve();
 
 % append to struct:
-localPlanner.sol.x = sol.value(x);
-localPlanner.sol.u = sol.value(u);
-localPlanner.sol.T = sol.value(T);
-localPlanner.sol.s = sol.value(s);
-localPlanner.sol.stats = opti.stats();
-localPlanner.sol.success = true;
+localPlanner.sol.x          = sol.value(x);
+localPlanner.sol.u          = sol.value(u);
+localPlanner.sol.T          = sol.value(T);
+localPlanner.sol.s          = sol.value(s);
+localPlanner.sol.r          = r;
+localPlanner.sol.xgx        = xgx;
+localPlanner.sol.xgy        = xgy;
+localPlanner.sol.stats      = opti.stats();
+localPlanner.sol.success    = true;

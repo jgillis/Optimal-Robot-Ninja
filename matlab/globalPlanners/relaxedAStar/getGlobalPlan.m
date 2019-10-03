@@ -8,6 +8,7 @@ H         = (MPC.map.width)/2;
 startAbs  = MPC.globalStart(1:2)';  % in global coordinates
 goalAbs   = MPC.globalGoal(1:2)';   % in global coordinates
 Ghat      = 0.01*globalPlanner.Ghat;
+Ghat      = 0.05*globalPlanner.Ghat;
 smooth    = globalPlanner.smooth;   % indicates if the plan has to be smoothed
 
 % IF GOAL INSIDE MAP:

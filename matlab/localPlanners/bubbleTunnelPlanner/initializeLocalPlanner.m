@@ -2,8 +2,10 @@ function localPlanner = initializeLocalPlanner(localPlanner,veh,log)
 
     % prints  
     LogicalStr = {'OFF', 'ON'};
+    fprintf('\t \t Preloaded: \t %s \n', LogicalStr{localPlanner.usePreloaded+1});
     fprintf('\t \t Linear End: \t %s \n', LogicalStr{localPlanner.withLinearEndInitial+1});
     fprintf('\t \t Rebuild: \t %s \n', LogicalStr{localPlanner.rebuildSolver+1});
+    fprintf('\t \t Horizon: \t %i \n', localPlanner.params.horizon);
     if localPlanner.rebuildSolver
         fprintf('\t \t Constraints: \n');
         fprintf('\t \t * max dist: \t %s \n', ...

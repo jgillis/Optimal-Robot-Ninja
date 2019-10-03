@@ -56,7 +56,7 @@ switch selector
         % direction than omega
         theta = zeros(1,size(solX,2));
         for i=2:n
-            theta(i) = theta(i-1)-(T_n/n)*omega(i-1);
+            theta(i) = theta(i-1)+(T_n/n)*omega(i-1);
         end
         
         % get vx, vy and omega values using the dynamic equations

@@ -4,8 +4,8 @@ function plotEnv(env)
 
 arc = 0:0.01:2*pi;
 
-figure;
+%figure;
 hold all;
 drawEnv(env.obst,arc);
 axis equal;
-title('Obstacles in world frame');
+%title('Obstacles in world frame');

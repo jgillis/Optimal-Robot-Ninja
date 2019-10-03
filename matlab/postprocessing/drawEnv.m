@@ -24,8 +24,8 @@ for i=1:size(obst,2)
         x_circle    = pos(1)+R*cos(th);
         y_circle    = pos(2)+R*sin(th);
         fill(x_circle, y_circle,obstacleFillColor);
-        plot(pos(1)+R*cos(arc), pos(2)+R*sin(arc), plotStyle,...
-            'LineWidth',1.5);
+        plot(pos(1)+R*cos(arc), pos(2)+R*sin(arc), ...
+            plotStyle,'LineWidth',1);
         
     % rectangular obstacle:
     elseif strcmp(type,'rectangle')==1
@@ -36,7 +36,8 @@ for i=1:size(obst,2)
         C   = rectangleCorners(pos,W/2,H/2,ori);
         fill(C(1,:),C(2,:),obstacleFillColor);
         C(:,end+1) = C(:,1);
-        plot(C(1,:),C(2,:),plotStyle,'LineWidth',1.5);
+        plot(C(1,:),C(2,:),...
+            plotStyle,'LineWidth',1);
     end
 end
 

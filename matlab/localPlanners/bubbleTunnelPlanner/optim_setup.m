@@ -34,7 +34,7 @@ xfinalp     = opti.parameter(3,1);
 ubeginp     = opti.parameter(2,1);
 
 % ode:
-ode  = @(x,u)[0.5*(u(1)+u(2))*sin(x(3)); 0.5*(u(1)+u(2))*cos(x(3)); (2/L)*(u(2)-u(1))];
+ode  = @(x,u)[-0.5*(u(1)+u(2))*sin(x(3)); 0.5*(u(1)+u(2))*cos(x(3)); (2/L)*(u(2)-u(1))];
 % 
 % % parametric global plan
 % xgx=casadi.interpolant('r','bspline',{linspace(0,1,size(xglobalxp,1))},xglobalxp',...
@@ -114,7 +114,7 @@ end
 opti.subject_to(T >= 0);
 
 % obstacle avoidance 'tunnel' constraint
-opti.subject_to(((x(1,:)-xgxp(s(:))').^2 + (x(2,:)-xgyp(s(:))').^2)<=rp(s(:)').^2);
+opti.subject_to(((x(1,:)-xgxp(s(:))').^2 + (x(2,:)-xgyp(s(:))').^2)<=(rp(s(:)')-L/2).^2);
 
 % constraints on parameter s
 opti.subject_to(s(1) == 0);

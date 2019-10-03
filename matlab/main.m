@@ -9,7 +9,7 @@ close all;
 clc;
 
 % select situation:
-sitStr = '1_9_1';
+sitStr = '1_16_1';
 
 % select global end local planner:
 globalPlannerStr  = 'relaxedAStar';
@@ -35,15 +35,15 @@ eval(['load ./data/MPC',sitStr,'.mat;']);
 eval(['load ./data/veh',num2str(MPC.vehicle),'.mat;']);
 eval(['load ./data/env',num2str(MPC.environment),'.mat;']);
 
-% manual parameter overrides (add if you want):
+% manual parameter overrides:
 veh.sensor.noiseamp                 = 0;
-veh.sensor.freq                     = 100;
-veh.motors.fmax                     = 10;
-veh.motors.noiseamp                 = 0.0;
-MPC.globalStart                     = [-5.3524;6.0316;-1.6110];
-% MPC.globalGoal                      = [9;9;0];
+veh.sensor.freq                     = 30;
+veh.sensor.horizon                  = 5;
+veh.motors.fmax                     = 3;
+veh.motors.noiseamp                 = 0;
+% MPC.globalStart                     = [7;0;0];
+% MPC.globalGoal                      = [3;3;0];
 MPC.kmax                            = 1000;
-MPC.nav.preload                     = true;
 
 
 %% MPC LOOP
@@ -109,17 +109,18 @@ end
 %% POST-PROCESSING:
 
 % make video:
-if makeMov
-    makeMPCAVI(log,veh,env);
-    close all;
-end
+% if makeMov
+%     makeMPCAVI(log,veh,env);
+%     close all;
+% end
 
 % plots:
 k = MPC.k-1;
 
 plotMPCState(log,veh,env,k);
-plotDynamics(log,k);
-plotMPCStats(log);
+% plotMeasurements(env,log,veh,k);
+% plotDynamics(log,k);
+% plotMPCStats(log);
 
 
 

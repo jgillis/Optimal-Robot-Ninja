@@ -54,7 +54,7 @@ else
     prevP = plan(current_index-1,:);
     nextP = plan(current_index+1,:);
     angle = atan2((nextP(2)-prevP(2)),(nextP(1)-prevP(1)));
-    ori   = - (pi/2 - angle); % because of different definition of robot angle
+    ori   = -(pi/2 - angle); % because of different definition of robot angle
 end
 
 g = [g';ori];

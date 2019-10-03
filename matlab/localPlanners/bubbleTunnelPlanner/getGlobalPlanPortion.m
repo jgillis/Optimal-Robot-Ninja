@@ -1,8 +1,25 @@
 function localPlanner = getGlobalPlanPortion(MPC,globalPlanner,localPlanner)
     
     currentState = MPC.currentState;
-    xglobalx = globalPlanner.worldCoordinates(1:globalPlanner.lastIndex,1);
-    xglobaly = globalPlanner.worldCoordinates(1:globalPlanner.lastIndex,2);
+    plan         = globalPlanner.worldCoordinates;
+    
+    % get first point on global plan closest to current state and set that
+    % as first index of portion of global plan to take into account:
+    closest         = 1;
+    minDistance     = 10000; %some crazy big number
+    for i=1:size(plan,1)
+        distance = norm(currentState(1:2)-plan(i,:));
+        if distance<minDistance
+            closest = i;
+            minDistance = distance;
+            if closest == size(plan,1)
+                closest = i-1;
+            end
+        end
+    end
+    
+    xglobalx = globalPlanner.worldCoordinates(closest:globalPlanner.lastIndex,1);
+    xglobaly = globalPlanner.worldCoordinates(closest:globalPlanner.lastIndex,2);
     
     % transform to local frame before calling solver:
     Xglobal = toLocalFrame(MPC.currentState(1:2),MPC.currentState(3),[xglobalx';xglobaly']);
