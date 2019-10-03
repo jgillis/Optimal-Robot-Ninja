@@ -2,7 +2,6 @@
 npm-debug.log
 *.o
 *.so
-*.mat
 *.casadi
 *.fig
 *.avi
