@@ -58,11 +58,9 @@ if warmStart
     else
         linearSelectorBool = (MPC_iteration==1);
     end
-    
 else
     linearSelectorBool = true; 
 end
-
 if strcmp(solver_str,'ipopt')==1
     fprintf('\t \t Using IPOPT solver \n');
     % if first iteration, make initial guesses; else 'warm-start' the
@@ -70,19 +68,14 @@ if strcmp(solver_str,'ipopt')==1
     if linearSelectorBool 
         fprintf('\t \t NOT warm-started \n');
         theta_init = linspace(x_begin(3),x_final(3),n+1);
-%         phi         = atan2(x_final(3),n);
-%         alpha       = 0.5;
-%         n_vec       = linspace(0,n,n+1);
-%         theta_star  = alpha*sin(2*pi*n_vec/n);
-%         theta_init  = n_vec*sin(phi)+theta_star*cos(phi);
         x_init  = [linspace(x_begin(1),x_final(1),n+1);linspace(x_begin(2),x_final(2),n+1); ...
             theta_init];
         u_init  = zeros(2,n);
-        T_init = 1.5*norm(x_begin(1:2)-x_final(1:2))/u_max;
+        T_init = norm(x_begin(1:2)-x_final(1:2))/u_max;
         
-%         x_init1 = interpolateUntil(xglobal_x,n+1);
-%         x_init2 = interpolateUntil(xglobal_y,n+1);
-%         x_init = [x_init1';x_init2';theta_init];
+        x_init1 = interpolateUntil(xglobal_x,n+1);
+        x_init2 = interpolateUntil(xglobal_y,n+1);
+        x_init = [x_init1';x_init2';theta_init];
 
     else
         fprintf('\t \t Warm-started \n');
@@ -90,11 +83,6 @@ if strcmp(solver_str,'ipopt')==1
         u_init = localPlanner.sol.u;
         T_init = localPlanner.sol.T;
     end
-    
-    options.ipopt.tol = 1e-5;
-    options.ipopt.print_level = 0;
-    opti.solver('ipopt',options);
-   
 end
 
 % print if goal in view or not
@@ -165,14 +153,13 @@ end
 opti.subject_to(T >= 0);
 
 % obstacle avoidance 'tunnel' constraint
-eps = 0.1;
 opti.subject_to(((x(1,:)-xgx(s(:))').^2 + (x(2,:)-xgy(s(:))').^2)<=(r(s(:)')-L/2).^2);
 
 % constraints on parameter s
 opti.subject_to(s(1) == 0);
 opti.subject_to(s(n+1) == 1);
 opti.subject_to(0<=s(:)<=1);
-% opti.subject_to(diff(s(:))<=1.5/n);
+% opti.subject_to(diff(s(:))<=3/n);
 
 % initial guesses
 opti.set_initial(s,linspace(0,1,n+1));
@@ -184,8 +171,8 @@ opti.set_initial(T,T_init);
 opti.minimize(T);
 
 % solver:
-% options.ipopt.print_level = 5;
-% opti.solver('ipopt',options);
+options.ipopt.print_level = 5;
+opti.solver('ipopt',options);
 
 % solve:
 sol = opti.solve();

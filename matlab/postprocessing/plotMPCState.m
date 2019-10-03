@@ -48,5 +48,5 @@ drawMeasurements(measurementsWorld');
 titlestr = ['MPC state at iteration ',num2str(it)];
 %title(titlestr);
 axis equal;
-axis([-2 15 -2 15]);
+axis([-1 11 -1 11]);
 set(gca,'visible','off')

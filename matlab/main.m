@@ -9,11 +9,11 @@ close all;
 clc;
 
 % select situation:
-sitStr = '1_16_1';
+sitStr = '1_14_1';
 
 % select global end local planner:
 globalPlannerStr  = 'relaxedAStar';
-localPlannerStr   = 'bubbleTunnelPlanner';
+localPlannerStr   = 'potentialLandscapePlanner';
 
 % makeMovie:
 makeMov = false;

@@ -22,13 +22,13 @@ localPlanner.params.globalPlanR   = 2;      % Following radius for global plan
 localPlanner.usePreloaded                    = false;
 localPlanner.withLinearEndInitial            = true;
 localPlanner.warmStart                       = true;     % Indicate wether to warm-start iteration or not
-localPlanner.rebuildSolver                   = false;     % Indicate wether to rebuild (true) or load (false) the problem
+localPlanner.rebuildSolver                   = true;     % Indicate wether to rebuild (true) or load (false) the problem
 localPlanner.withMaxDistConstraints          = true;
 localPlanner.withVelocityConstraints         = true;
 localPlanner.withPositiveVelocityConstraints = true;
 localPlanner.withOmegaConstraints            = true;
 localPlanner.withAccelerationConstraints     = true;
-localPlanner.withJerkConstraints             = false;
+localPlanner.withJerkConstraints             = true;
 localPlanner.goalInView                      = false;    % Indicate if final goal is within view or not
 
 localPlanner.init.x        = [];

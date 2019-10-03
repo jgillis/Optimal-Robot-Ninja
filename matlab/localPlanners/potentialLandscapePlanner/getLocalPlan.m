@@ -29,7 +29,7 @@ function [MPC,globalPlanner,localPlanner] = getLocalPlan(MPC,veh,globalPlanner,l
     
     try
         localPlanner.warmStart = true;
-        localPlanner.solver.type = 'sqp1';
+        localPlanner.solver.type = 'ipopt';
         localPlanner = optim(MPC,localPlanner,globalPlanner,veh,MPC_iteration);
     catch ME1
         fprintf(2,'********************************************************* \n');
